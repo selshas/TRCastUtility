@@ -5,9 +5,10 @@ using System;
 using UnityEngine.InputSystem;
 
 
-public class LoweLevelInputSystem : MonoBehaviour
+public class LowLevelInputSystem : MonoBehaviour
 {
-    static ApplicationState state;
+    public List<UtilityAppBase> UtilityApps;
+
     public enum eApplicationState : int
     {
         Noone = 0,
@@ -15,17 +16,10 @@ public class LoweLevelInputSystem : MonoBehaviour
         DrawCanvas = 2
     }
 
-    ApplicationState[] states = new ApplicationState[3];
-
-    static GameObject gameObject_cardTable;
-    static GameObject gameObject_cardSpawner;
-
     static GameObject gameObject_screenCanvas;
-    static GameObject gameObject_minimapCanvas;
 
     static ScreenCanvas screenCanvas;
     static ScreenCanvas minimapCanvas;
-
     static CoverScreen coverScreen;
 
     public enum LLKBInput : uint
@@ -115,8 +109,6 @@ public class LoweLevelInputSystem : MonoBehaviour
         }*/
         //Debug.Log($"{(LLKBInput)kb.scanCode}: {dict_inputStates[key]} / {dict_inputStates[Key.LeftAlt]}");
 
-        state.Update();
-
         return Win32API.CallNextHookEx(ApplicationSetup.hhook_kbinput, nCode, wParam, lParam);
     }
 
@@ -131,20 +123,8 @@ public class LoweLevelInputSystem : MonoBehaviour
         return Win32API.CallNextHookEx(ApplicationSetup.hhook_mbinput, nCode, wParam, lParam);
     }
 
-    private void Awake()
-    {
-        var state_default = new ApplicationState();
-        state_default.AddInputCmd((int)LLMBInput.LPressed, false, InputState.Pressed, () => {
-            Debug.Log("AAAAAAAAAAAAAAAAAA");
-        });
-        states[(int)eApplicationState.Noone] = state_default;
-    }
-
     private void Start()
     {
-        gameObject_cardTable   = GameObject.Find("CardTable");
-        gameObject_cardSpawner = GameObject.Find("Canvas/Root/CardSpawner");
-
         gameObject_screenCanvas = GameObject.Find("Canvas/Root/ScreenCanvas");
         screenCanvas = gameObject_screenCanvas.GetComponent<ScreenCanvas>();
 
@@ -162,8 +142,6 @@ public class LoweLevelInputSystem : MonoBehaviour
         {
             dict_inputStates[list_allowedInputs[i]] = InputState.Idle;
         }
-
-        state = states[(int)eApplicationState.Noone];
     }
 
     // Update is called once per frame
@@ -172,28 +150,9 @@ public class LoweLevelInputSystem : MonoBehaviour
         if (!Application.isFocused) 
             return;
 
-        foreach (uint key in list_allowedInputs)
+        foreach (UtilityAppBase app in UtilityApps)
         {
-            /*
-            if (Keyboard.current[key].wasPressedThisFrame)
-            {
-                dict_inputStates[key] = InputState.Pressed;
-            }
-            else if (Keyboard.current[key].isPressed)
-            {
-                dict_inputStates[key] = InputState.Hold;
-            }
-            else if (Keyboard.current[key].wasReleasedThisFrame)
-            {
-                dict_inputStates[key] = InputState.Released;
-            }
-            else
-            {
-                dict_inputStates[key] = InputState.Idle;
-            }
-            */
+            app.ProcessInput(ref this);
         }
-
-        state.Update();
     }
 }
