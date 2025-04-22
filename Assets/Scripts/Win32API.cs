@@ -1,43 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System.Runtime.InteropServices;
 using System;
-using System.Drawing;
-using UnityEngine.LightTransport;
+using AOT;
 
 public static class Win32API
 {
+    public const uint RIDEV_INPUTSINK = 0x00000100;
+    public const uint RID_INPUT = 0x10000003;
+    public const uint RIM_TYPEMOUSE = 0;
+
     public struct Margin
     {
         public int cx_left;
         public int cx_right;
         public int cy_top;
         public int cy_bottom;
-    }
-
-    [DllImport("user32.dll")]
-    public static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
-    [DllImport("user32.dll")]
-    public static extern IntPtr GetActiveWindow();
-    [DllImport("Dwmapi.dll")]
-    public static extern uint DwmExtendFrameIntoClientArea(IntPtr hWnd, ref Margin margins);
-
-    [DllImport("user32.dll")]
-    public static extern uint SetWindowLongA(IntPtr hwnd, int index, long attr);
-
-    [DllImport("user32.dll")]
-    public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
-
-
-    public struct KBDLLHOOKSTRUCT
-    {
-        public uint vkCode;
-        public uint scanCode;
-        public uint flags;
-        public uint time;
-
-        public UIntPtr dwExtraInfo;
     }
 
     public struct POINT
@@ -55,10 +31,23 @@ public static class Win32API
         public IntPtr dwExtraInfo;
     }
 
-    public delegate int HOOKPROC(int nCode, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("kernal32.dll")]
+    public static extern IntPtr GetCurrentProcess();
 
     [DllImport("user32.dll")]
-    public static extern IntPtr SetWindowsHookEx(int idHook, HOOKPROC lpfn, IntPtr hmod, int dwThreadID);
+    public static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetActiveWindow();
+    [DllImport("Dwmapi.dll")]
+    public static extern uint DwmExtendFrameIntoClientArea(IntPtr hWnd, ref Margin margins);
+
+    [DllImport("user32.dll")]
+    public static extern uint SetWindowLongA(IntPtr hwnd, int index, long attr);
+
+    [DllImport("user32.dll")]
+    public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
+
 
     [DllImport("user32.dll")]
     public static extern bool UnhookWindowsHookEx(IntPtr hhook);
