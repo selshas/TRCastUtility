@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -12,16 +11,15 @@ public class ApplicationSetup : MonoBehaviour
 
     public static bool raycastDetected = false;
 
-    static GameObject gameObject_statusIcon = null;
-
     public static bool interactionMode
     {
         get => _interactionMode; 
         set 
         {
             _interactionMode = value;
-            gameObject_statusIcon.SetActive(value);
-            if (!value) Win32API.SetWindowLongA(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+
+            if (!value) 
+                Win32API.SetWindowLongA(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
         }
     }
     private static bool _interactionMode = true;
@@ -32,6 +30,7 @@ public class ApplicationSetup : MonoBehaviour
     const long WS_EX_TRANSPARENT = 0x00000020L;
 
     public static IntPtr hhook_kbinput = IntPtr.Zero;
+    public static IntPtr hhook_mbinput = IntPtr.Zero;
     public static IntPtr hWnd { get; private set; }
 
     public static System.Diagnostics.Process proc { get; private set; }
@@ -49,8 +48,6 @@ public class ApplicationSetup : MonoBehaviour
         Application.runInBackground = true;
         Application.targetFrameRate = 240;
         raycaster = GetComponent<GraphicRaycaster>();
-
-        gameObject_statusIcon ??= GameObject.Find("Canvas/Root/ToolStatusIcons/Icon_Interactable");
 
 #if !UNITY_EDITOR
 
@@ -92,6 +89,7 @@ public class ApplicationSetup : MonoBehaviour
 
         if (list_raycastResults.Count > 0 || raycastDetected)
         {
+            // Bring window focus to the top
             Win32API.SetWindowLongA(hWnd, GWL_EXSTYLE, WS_EX_LAYERED);
         }
         else
@@ -106,20 +104,34 @@ public class ApplicationSetup : MonoBehaviour
         if (hhook_kbinput == IntPtr.Zero)
         {
             hhook_kbinput = Win32API.SetWindowsHookEx(
-                13,
-                InputControl.HookProc,
+                13, // WH_KEYBOARD_LL
+                LoweLevelInputSystem.KbHookProc,
+                IntPtr.Zero,
+                0
+            );
+        }
+
+        if (hhook_mbinput == IntPtr.Zero)
+        {
+            hhook_mbinput = Win32API.SetWindowsHookEx(
+                14, // WH_MOUSE_LL
+                LoweLevelInputSystem.MHookProc,
                 IntPtr.Zero,
                 0
             );
         }
 
         Debug.Log($"hhook_kbinput: {hhook_kbinput}");
+        Debug.Log($"hhook_mbinput: {hhook_mbinput}");
     }
 
     void UninstallInputHooker()
     {
         Win32API.UnhookWindowsHookEx(hhook_kbinput);
         hhook_kbinput = IntPtr.Zero;
+
+        Win32API.UnhookWindowsHookEx(hhook_mbinput);
+        hhook_mbinput = IntPtr.Zero;
     }
 
     private void OnDestroy()
