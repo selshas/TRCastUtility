@@ -11,7 +11,8 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 /[Bb]uild/
-/[Bb]uild_exe/
+/[Bb]uild_exe_il2cpp/
+/[Bb]uild_exe_mono/
 /[Bb]uild_exe_old/
 /[Bb]uild_exe_webgl/
 
