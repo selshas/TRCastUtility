@@ -92,7 +92,5 @@ public partial class GlobalInputSystem : MonoBehaviour
         }
 
         InputStates_prev = InputStates.ToDictionary(x => x.Key, y => y.Value.ToDictionary(i => i.Key, j => j.Value));
-
-        debugText.text = $"MouseButton.Button1: {InputStates[DeviceType.Mouse][(uint)MouseButton.Button1]}";
     }
 }
