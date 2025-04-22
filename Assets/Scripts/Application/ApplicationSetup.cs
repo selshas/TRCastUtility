@@ -7,11 +7,11 @@ using UnityEngine.InputSystem;
 
 public class ApplicationSetup : MonoBehaviour
 {
-    public static ApplicationSetup instance = null;
+    public static ApplicationSetup Instance = null;
 
-    public static bool raycastDetected = false;
+    public static bool RaycastDetected = false;
 
-    public static bool interactionMode
+    public static bool InteractionMode
     {
         get => _interactionMode; 
         set 
@@ -35,18 +35,22 @@ public class ApplicationSetup : MonoBehaviour
 
     public static System.Diagnostics.Process proc { get; private set; }
 
-    GraphicRaycaster raycaster;
-    public static List<RaycastResult> list_raycastResults = new List<RaycastResult>();
+    private GraphicRaycaster raycaster;
+    public static List<RaycastResult> RaycastResults = new List<RaycastResult>();
+
+    public List<UtilityAppBase> UtilityApps = new List<UtilityAppBase>();
 
     // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
-        instance ??= this;
+        Instance ??= this;
 
         proc = System.Diagnostics.Process.GetCurrentProcess();
+        //proc = Win32API.GetCurrentProcess();
 
         Application.runInBackground = true;
-        Application.targetFrameRate = 240;
+        Application.targetFrameRate = 60;
+
         raycaster = GetComponent<GraphicRaycaster>();
 
 #if !UNITY_EDITOR
@@ -55,12 +59,11 @@ public class ApplicationSetup : MonoBehaviour
 
         Win32API.Margin margin = new Win32API.Margin { cx_left = -20 };
         Win32API.DwmExtendFrameIntoClientArea(hWnd, ref margin);
-
-        Win32API.SetWindowLongA(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+        
+        Win32API.SetWindowLongA(hWnd, GWL_EXSTYLE, WS_EX_LAYERED);
 
         Win32API.SetWindowPos(hWnd, new IntPtr(-1), 0, 0, 0, 0, 0);
 #endif
-        InstallInputHooker();
     }
 
     public void Wakeup()
@@ -75,7 +78,7 @@ public class ApplicationSetup : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!interactionMode) 
+        if (!InteractionMode) 
             return;
 
         Cursor.lockState = (Application.isFocused) 
@@ -85,9 +88,9 @@ public class ApplicationSetup : MonoBehaviour
         PointerEventData ped = new PointerEventData(null);
         ped.position = Mouse.current.position.ReadValue();
 
-        raycaster.Raycast(ped, list_raycastResults);
+        raycaster.Raycast(ped, RaycastResults);
 
-        if (list_raycastResults.Count > 0 || raycastDetected)
+        if (RaycastResults.Count > 0 || RaycastDetected)
         {
             // Bring window focus to the top
             Win32API.SetWindowLongA(hWnd, GWL_EXSTYLE, WS_EX_LAYERED);
@@ -96,50 +99,6 @@ public class ApplicationSetup : MonoBehaviour
         {
             Win32API.SetWindowLongA(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
         }
-        list_raycastResults.Clear();
-    }
-
-    void InstallInputHooker()
-    {
-        if (hhook_kbinput == IntPtr.Zero)
-        {
-            hhook_kbinput = Win32API.SetWindowsHookEx(
-                13, // WH_KEYBOARD_LL
-                LoweLevelInputSystem.KbHookProc,
-                IntPtr.Zero,
-                0
-            );
-        }
-
-        if (hhook_mbinput == IntPtr.Zero)
-        {
-            hhook_mbinput = Win32API.SetWindowsHookEx(
-                14, // WH_MOUSE_LL
-                LoweLevelInputSystem.MHookProc,
-                IntPtr.Zero,
-                0
-            );
-        }
-
-        Debug.Log($"hhook_kbinput: {hhook_kbinput}");
-        Debug.Log($"hhook_mbinput: {hhook_mbinput}");
-    }
-
-    void UninstallInputHooker()
-    {
-        Win32API.UnhookWindowsHookEx(hhook_kbinput);
-        hhook_kbinput = IntPtr.Zero;
-
-        Win32API.UnhookWindowsHookEx(hhook_mbinput);
-        hhook_mbinput = IntPtr.Zero;
-    }
-
-    private void OnDestroy()
-    {
-        UninstallInputHooker();
-    }
-    ~ApplicationSetup()
-    {
-        UninstallInputHooker();
+        RaycastResults.Clear();
     }
 }

@@ -22,8 +22,6 @@ public class CoverScreen : UtilityAppBase
 
     private int currentImageIndex = -1;
 
-    // Start is called before the first frame update
-
     public void Shuffle()
     {
         Select(Random.Range(0, images.Count-2));
@@ -38,7 +36,7 @@ public class CoverScreen : UtilityAppBase
     }
 
     // Start is called before the first frame update
-    void Awake()
+    protected void Awake()
     {
         images.Add(tex_titleImage);
         images.Add(new Texture2D(1, 1, TextureFormat.RGBA32, false));
@@ -64,7 +62,9 @@ public class CoverScreen : UtilityAppBase
     public void ShowCyclicImages()
     {
         gameObject.SetActive(true);
-        if (coroutine_imageSwapFading != null) StopCoroutine(coroutine_imageSwapFading);
+
+        if (coroutine_imageSwapFading != null)
+            StopCoroutine(coroutine_imageSwapFading);
 
         isCycling = true;
         Shuffle();
@@ -76,7 +76,9 @@ public class CoverScreen : UtilityAppBase
     public void ShowBlackScreen()
     {
         gameObject.SetActive(true);
-        if (coroutine_imageSwapFading != null) StopCoroutine(coroutine_imageSwapFading);
+
+        if (coroutine_imageSwapFading != null) 
+            StopCoroutine(coroutine_imageSwapFading);
 
         isCycling = false;
         Select(-1);
@@ -88,7 +90,9 @@ public class CoverScreen : UtilityAppBase
     public void ShowWhiteScreen()
     {
         gameObject.SetActive(true);
-        if (coroutine_imageSwapFading != null) StopCoroutine(coroutine_imageSwapFading);
+
+        if (coroutine_imageSwapFading != null) 
+            StopCoroutine(coroutine_imageSwapFading);
 
         isCycling = false;
         Select(-2);
@@ -100,7 +104,9 @@ public class CoverScreen : UtilityAppBase
     public void ShowTitleScreen()
     {
         gameObject.SetActive(true);
-        if (coroutine_imageSwapFading != null) StopCoroutine(coroutine_imageSwapFading);
+        
+        if (coroutine_imageSwapFading != null)
+            StopCoroutine(coroutine_imageSwapFading);
 
         isCycling = false;
         Select(-3);
@@ -121,10 +127,15 @@ public class CoverScreen : UtilityAppBase
             for (float alpha = 0; alpha <= 1.0f; alpha += Time.deltaTime)
             {
                 mat_multiplyOpacity.SetFloat("_Opacity", alpha);
-                if (rawImage.color.a < 1.0f) rawImage.color = new Color(1, 1, 1, alpha);
+
+                if (rawImage.color.a < 1.0f) 
+                    rawImage.color = new Color(1, 1, 1, alpha);
+
                 Graphics.Blit(images[currentImageIndex], renderTex, mat_multiplyOpacity);
+
                 yield return new WaitForEndOfFrame();
             }
+
             mat_multiplyOpacity.SetFloat("_Opacity", 1.0f);
             rawImage.color = new Color(1, 1, 1, 1);
             Graphics.Blit(images[currentImageIndex], renderTex, mat_multiplyOpacity);
@@ -132,6 +143,7 @@ public class CoverScreen : UtilityAppBase
             if (isCycling)
             {
                 yield return new WaitForSecondsRealtime(cyclingTime);
+
                 Graphics.CopyTexture(renderTex, renderTex_prev);
                 Shuffle();
             }
@@ -142,7 +154,8 @@ public class CoverScreen : UtilityAppBase
     }
     IEnumerator Coroutine_FadeOut()
     {
-        if (coroutine_imageSwapFading != null) StopCoroutine(Coroutine_FadeIn());
+        if (coroutine_imageSwapFading != null) 
+            StopCoroutine(Coroutine_FadeIn());
 
         for (float alpha = 1.0f; alpha >= 0.0f; alpha -= Time.deltaTime)
         {
@@ -153,5 +166,9 @@ public class CoverScreen : UtilityAppBase
 
         gameObject.SetActive(false);
         yield return null;
+    }
+
+    public override void InitializeInputs()
+    {
     }
 }
