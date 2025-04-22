@@ -5,7 +5,8 @@ using UnityEngine;
 public enum eFaction : int
 {
     None = -1,
-    GlobalRisk = 0,
-    BlackList = 1,
-    NewHorizon = 2
+
+    GDF = 0,
+    TD = 1,
+    Veti = 2
 }
