@@ -56,12 +56,9 @@ public abstract class UtilityAppBase : MonoBehaviour
         foreach (var inputCommand in inputCmds)
         {
             var keyCode = inputCommand.LowLevelKeyCode;
-
             var inputStates = inputSys.InputStates[inputCommand.DeviceType];
             if (!inputStates.TryGetValue(keyCode, out var state))
                 continue;
-
-            //Debug.Log($"{keyCode}({inputCommand.StateCondition}): {state}");
 
             if (state != inputCommand.StateCondition)
                 continue;
