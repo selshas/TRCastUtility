@@ -5,7 +5,7 @@ using KeyCode = SharpHook.Native.KeyCode;
 
 public class GlobalAppController : UtilityAppBase
 {
-    public GlobalAppController Instance { get; private set; }
+    public static GlobalAppController Instance { get; private set; }
 
     public GlobalAppControllerHelper Helper;
 
@@ -22,6 +22,11 @@ public class GlobalAppController : UtilityAppBase
     {
         var isActive = App_ScreenCanvas.gameObject.activeSelf;
         App_ScreenCanvas.gameObject.SetActive(!isActive);
+
+        if (App_ScreenCanvas.gameObject.activeSelf)
+        {
+            App_MinimapCanvas.gameObject.SetActive(false);
+        }
     }
     public void ToggleApp_CardTable()
     {
@@ -32,6 +37,11 @@ public class GlobalAppController : UtilityAppBase
     {
         var isActive = App_MinimapCanvas.gameObject.activeSelf;
         App_MinimapCanvas.gameObject.SetActive(!isActive);
+
+        if (App_MinimapCanvas.gameObject.activeSelf)
+        {
+            App_ScreenCanvas.gameObject.SetActive(false);
+        }
     }
     public void ToggleApp_PlayersNamePanel()
     {
