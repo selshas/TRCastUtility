@@ -36,6 +36,8 @@ public partial class GlobalInputSystem : MonoBehaviour
     {
         hooker.MousePressed -= Hook_MousePressed;
         hooker.MouseReleased -= Hook_MouseReleased;
+        hooker.KeyPressed -= Hook_KeyboardPressed;
+        hooker.KeyReleased -= Hook_KeyboardReleased;
 
         hooker.Dispose();
 
