@@ -8,8 +8,11 @@ public class GlobalAppConstroller : UtilityAppBase
     public ScreenCanvas App_ScreenCanvas;
     public CardTable App_CardTable;
     public MinimapCanvas App_MinimapCanvas;
-    public ScreenCanvas App_PlayersPanel;
+    public PlayersNamePanel App_PlayersNamePanel;
     public ScreenVeil App_ScreenVeil;
+
+    public float timeToHoldToQuit = 2.0f; // Time to hold backspace to quit the app
+    private float timer_quit = 0.0f;
 
     public void ToggleApp_ScreenCanvas()
     {
@@ -26,10 +29,10 @@ public class GlobalAppConstroller : UtilityAppBase
         var isActive = App_MinimapCanvas.gameObject.activeSelf;
         App_MinimapCanvas.gameObject.SetActive(!isActive);
     }
-    public void ToggleApp_PlayersPanel()
+    public void ToggleApp_PlayersNamePanel()
     {
-        var isActive = App_PlayersPanel.gameObject.activeSelf;
-        App_PlayersPanel.gameObject.SetActive(!isActive);
+        var isActive = App_PlayersNamePanel.gameObject.activeSelf;
+        App_PlayersNamePanel.gameObject.SetActive(!isActive);
     }
     public void ToggleApp_ScreenVeil()
     {
@@ -45,7 +48,15 @@ public class GlobalAppConstroller : UtilityAppBase
     public override void InitializeInputs()
     {
         AddInputCmd(
-            DeviceType.Keyboard, (uint)KeyCode.VcF1,
+            DeviceType.Keyboard, (uint)KeyCode.VcF5,
+            InputState.Pressed,
+            (self) =>
+            {
+                ToggleApp_CardTable();
+            }
+        );
+        AddInputCmd(
+            DeviceType.Keyboard, (uint)KeyCode.VcF6,
             InputState.Pressed,
             (self) =>
             {
@@ -54,12 +65,42 @@ public class GlobalAppConstroller : UtilityAppBase
             }
         );
         AddInputCmd(
-            DeviceType.Keyboard, (uint)KeyCode.VcF2,
+            DeviceType.Keyboard, (uint)KeyCode.VcF7,
             InputState.Pressed,
             (self) =>
             {
-                ToggleApp_ScreenVeil();
+                ToggleApp_MinimapCanvas();
             }
         );
+        AddInputCmd(
+            DeviceType.Keyboard, (uint)KeyCode.VcF8,
+            InputState.Pressed,
+            (self) =>
+            {
+                ToggleApp_PlayersNamePanel();
+            }
+        );
+
+        #region Exit Command
+        AddInputCmd(
+            DeviceType.Keyboard, (uint)KeyCode.VcBackspace,
+            InputState.Released,
+            (self) =>
+            {
+                timer_quit = 0.0f;
+            }
+        );
+        AddInputCmd(
+            DeviceType.Keyboard, (uint)KeyCode.VcBackspace,
+            InputState.Hold,
+            (self) =>
+            {
+                timer_quit += Time.deltaTime;
+
+                if (timer_quit >= timeToHoldToQuit)
+                    Application.Quit();
+            }
+        );
+        #endregion Exit Command
     }
 }
