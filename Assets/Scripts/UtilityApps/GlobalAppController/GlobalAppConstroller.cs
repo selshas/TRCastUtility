@@ -47,8 +47,9 @@ public class GlobalAppConstroller : UtilityAppBase
 
     public override void InitializeInputs()
     {
+        #region Toggle Apps
         AddInputCmd(
-            DeviceType.Keyboard, (uint)KeyCode.VcF5,
+            DeviceType.Keyboard, (uint)KeyCode.VcF1,
             InputState.Pressed,
             (self) =>
             {
@@ -56,7 +57,7 @@ public class GlobalAppConstroller : UtilityAppBase
             }
         );
         AddInputCmd(
-            DeviceType.Keyboard, (uint)KeyCode.VcF6,
+            DeviceType.Keyboard, (uint)KeyCode.VcF2,
             InputState.Pressed,
             (self) =>
             {
@@ -65,7 +66,7 @@ public class GlobalAppConstroller : UtilityAppBase
             }
         );
         AddInputCmd(
-            DeviceType.Keyboard, (uint)KeyCode.VcF7,
+            DeviceType.Keyboard, (uint)KeyCode.VcF3,
             InputState.Pressed,
             (self) =>
             {
@@ -73,13 +74,14 @@ public class GlobalAppConstroller : UtilityAppBase
             }
         );
         AddInputCmd(
-            DeviceType.Keyboard, (uint)KeyCode.VcF8,
+            DeviceType.Keyboard, (uint)KeyCode.VcF4,
             InputState.Pressed,
             (self) =>
             {
                 ToggleApp_PlayersNamePanel();
             }
         );
+        #endregion Toggle Apps
 
         #region Exit Command
         AddInputCmd(
