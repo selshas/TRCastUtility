@@ -3,8 +3,12 @@ using static GlobalInputSystem;
 using DeviceType = GlobalInputSystem.DeviceType;
 using KeyCode = SharpHook.Native.KeyCode;
 
-public class GlobalAppConstroller : UtilityAppBase
+public class GlobalAppController : UtilityAppBase
 {
+    public GlobalAppController Instance { get; private set; }
+
+    public GlobalAppControllerHelper Helper;
+
     public ScreenCanvas App_ScreenCanvas;
     public CardTable App_CardTable;
     public MinimapCanvas App_MinimapCanvas;
@@ -38,6 +42,11 @@ public class GlobalAppConstroller : UtilityAppBase
     {
         var isActive = App_ScreenCanvas.gameObject.activeSelf;
         App_ScreenVeil.gameObject.SetActive(!isActive);
+    }
+
+    protected void Awake()
+    {
+        Instance ??= this;
     }
 
     protected override void Start()
@@ -82,6 +91,15 @@ public class GlobalAppConstroller : UtilityAppBase
             }
         );
         #endregion Toggle Apps
+
+        AddInputCmd(
+            DeviceType.Keyboard, (uint)KeyCode.VcF6,
+            InputState.Pressed,
+            (self) =>
+            {
+                Helper.gameObject.SetActive(!Helper.gameObject.activeSelf);
+            }
+        );
 
         #region Exit Command
         AddInputCmd(
