@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static GlobalInputSystem;
+using DeviceType = GlobalInputSystem.DeviceType;
+using KeyCode = SharpHook.Native.KeyCode;
 
-[RequireComponent(typeof(UnityEngine.UI.RawImage))]
-public class CoverScreen : UtilityAppBase
+public class ScreenVeil: UtilityAppBase
 {
     public UnityEngine.UI.RawImage rawImage;
 
@@ -11,21 +13,12 @@ public class CoverScreen : UtilityAppBase
 
     private RenderTexture renderTex;
     private RenderTexture renderTex_prev;
-    public Texture2D tex_titleImage;
-
-    public bool isCycling = true;
-    public float cyclingTime = 2.0f;
 
     private Coroutine coroutine_imageSwapFading = null;
 
     public List<Texture2D> images = new List<Texture2D>();
 
     private int currentImageIndex = -1;
-
-    public void Shuffle()
-    {
-        Select(Random.Range(0, images.Count-2));
-    }
 
     public void Select(int imgNo)
     {
@@ -38,7 +31,7 @@ public class CoverScreen : UtilityAppBase
     // Start is called before the first frame update
     protected void Awake()
     {
-        images.Add(tex_titleImage);
+        // Ser Black and White textures
         images.Add(new Texture2D(1, 1, TextureFormat.RGBA32, false));
         images.Add(new Texture2D(1, 1, TextureFormat.RGBA32, false));
 
@@ -47,32 +40,17 @@ public class CoverScreen : UtilityAppBase
         images[images.Count - 2].SetPixel(0, 0, new Color(1, 1, 1, 1));
         images[images.Count - 2].Apply();
 
-        renderTex = new RenderTexture(1920, 1080, 1, RenderTextureFormat.ARGB32, 0);
-        renderTex_prev = new RenderTexture(1920, 1080, 1, RenderTextureFormat.ARGB32, 0);
+        // Set the texture to display
+        renderTex = new RenderTexture(1, 1, 1, RenderTextureFormat.ARGB32, 0);
+        renderTex_prev = new RenderTexture(1, 1, 1, RenderTextureFormat.ARGB32, 0);
 
         mat_multiplyOpacity.SetTexture("_DestTex", renderTex_prev);
 
-        rawImage = GetComponent<UnityEngine.UI.RawImage>();
+        rawImage = transform.Find("Raw Image").GetComponent<UnityEngine.UI.RawImage>();
         rawImage.texture = renderTex;
         rawImage.color = new Color(1, 1, 1, 0);
-
-        Shuffle();
     }
 
-    public void ShowCyclicImages()
-    {
-        gameObject.SetActive(true);
-
-        if (coroutine_imageSwapFading != null)
-            StopCoroutine(coroutine_imageSwapFading);
-
-        isCycling = true;
-        Shuffle();
-
-        Graphics.CopyTexture(renderTex, renderTex_prev);
-
-        coroutine_imageSwapFading = StartCoroutine(Coroutine_FadeIn());
-    }
     public void ShowBlackScreen()
     {
         gameObject.SetActive(true);
@@ -80,13 +58,13 @@ public class CoverScreen : UtilityAppBase
         if (coroutine_imageSwapFading != null) 
             StopCoroutine(coroutine_imageSwapFading);
 
-        isCycling = false;
         Select(-1);
 
         Graphics.CopyTexture(renderTex, renderTex_prev);
 
         coroutine_imageSwapFading = StartCoroutine(Coroutine_FadeIn());
     }
+
     public void ShowWhiteScreen()
     {
         gameObject.SetActive(true);
@@ -94,22 +72,7 @@ public class CoverScreen : UtilityAppBase
         if (coroutine_imageSwapFading != null) 
             StopCoroutine(coroutine_imageSwapFading);
 
-        isCycling = false;
         Select(-2);
-
-        Graphics.CopyTexture(renderTex, renderTex_prev);
-
-        coroutine_imageSwapFading = StartCoroutine(Coroutine_FadeIn());
-    }
-    public void ShowTitleScreen()
-    {
-        gameObject.SetActive(true);
-        
-        if (coroutine_imageSwapFading != null)
-            StopCoroutine(coroutine_imageSwapFading);
-
-        isCycling = false;
-        Select(-3);
 
         Graphics.CopyTexture(renderTex, renderTex_prev);
 
@@ -122,33 +85,23 @@ public class CoverScreen : UtilityAppBase
 
     IEnumerator Coroutine_FadeIn()
     {
-        while (true)
+        rawImage.gameObject.SetActive(true);
+
+        for (float alpha = 0; alpha <= 1.0f; alpha += Time.deltaTime)
         {
-            for (float alpha = 0; alpha <= 1.0f; alpha += Time.deltaTime)
-            {
-                mat_multiplyOpacity.SetFloat("_Opacity", alpha);
+            mat_multiplyOpacity.SetFloat("_Opacity", alpha);
 
-                if (rawImage.color.a < 1.0f) 
-                    rawImage.color = new Color(1, 1, 1, alpha);
+            if (rawImage.color.a < 1.0f) 
+                rawImage.color = new Color(1, 1, 1, alpha);
 
-                Graphics.Blit(images[currentImageIndex], renderTex, mat_multiplyOpacity);
-
-                yield return new WaitForEndOfFrame();
-            }
-
-            mat_multiplyOpacity.SetFloat("_Opacity", 1.0f);
-            rawImage.color = new Color(1, 1, 1, 1);
             Graphics.Blit(images[currentImageIndex], renderTex, mat_multiplyOpacity);
 
-            if (isCycling)
-            {
-                yield return new WaitForSecondsRealtime(cyclingTime);
-
-                Graphics.CopyTexture(renderTex, renderTex_prev);
-                Shuffle();
-            }
-            else break;
+            yield return new WaitForEndOfFrame();
         }
+
+        mat_multiplyOpacity.SetFloat("_Opacity", 1.0f);
+        rawImage.color = new Color(1, 1, 1, 1);
+        Graphics.Blit(images[currentImageIndex], renderTex, mat_multiplyOpacity);
 
         yield return null;
     }
@@ -164,11 +117,36 @@ public class CoverScreen : UtilityAppBase
         }
         rawImage.color = new Color(1, 1, 1, 0);
 
-        gameObject.SetActive(false);
+        rawImage.gameObject.SetActive(false);
         yield return null;
     }
 
     public override void InitializeInputs()
     {
+        AddInputCmd(
+            DeviceType.Keyboard, (uint)KeyCode.VcInsert,
+            InputState.Pressed,
+            (self) =>
+            {
+                ShowWhiteScreen();
+            }
+        );
+        AddInputCmd(
+            DeviceType.Keyboard, (uint)KeyCode.VcHome,
+            InputState.Pressed,
+            (self) =>
+            {
+                ShowBlackScreen();
+            }
+        );
+
+        AddInputCmd(
+            DeviceType.Keyboard, (uint)KeyCode.VcDelete,
+            InputState.Pressed,
+            (self) =>
+            {
+                Disappear();
+            }
+        );
     }
 }
