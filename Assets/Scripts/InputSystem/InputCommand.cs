@@ -4,14 +4,14 @@ public class InputCommand
 {
     public DeviceType DeviceType = DeviceType.None;
     public InputState StateCondition = InputState.Idle;
-    public uint LowLevelKeyCode = 0;
+    public uint inputCode = 0;
 
     public InputCallback Callback;
 
-    public InputCommand(DeviceType deviceType, uint llKeyCode, InputState stateCondition, InputCallback callback)
+    public InputCommand(DeviceType deviceType, uint inputCode, InputState stateCondition, InputCallback callback)
     {
         DeviceType = deviceType;
-        LowLevelKeyCode = llKeyCode;
+        this.inputCode = inputCode;
 
         StateCondition = stateCondition;
 

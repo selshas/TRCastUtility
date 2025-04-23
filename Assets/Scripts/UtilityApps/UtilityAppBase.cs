@@ -1,5 +1,7 @@
+using SharpHook.Native;
 using System.Collections.Generic;
 using UnityEngine;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 public abstract class UtilityAppBase : MonoBehaviour
 {
@@ -37,7 +39,7 @@ public abstract class UtilityAppBase : MonoBehaviour
         }
 
 #if UNITY_EDITOR
-        Debug.Log($"AddInputCmd: {deviceType} {inputCode} {stateCondition}");
+        Debug.Log($"{this}.AddInputCmd: {deviceType} {inputCode} {stateCondition}");
 #endif
     }
 
@@ -55,7 +57,7 @@ public abstract class UtilityAppBase : MonoBehaviour
 
         foreach (var inputCommand in inputCmds)
         {
-            var keyCode = inputCommand.LowLevelKeyCode;
+            var keyCode = inputCommand.inputCode;
             var inputStates = inputSys.InputStates[inputCommand.DeviceType];
             if (!inputStates.TryGetValue(keyCode, out var state))
                 continue;

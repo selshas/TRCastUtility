@@ -2,10 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using SharpHook;
-using SharpHook.Native;
-using TMPro;
 using System.Linq;
-using NUnit.Framework;
 
 public partial class GlobalInputSystem : MonoBehaviour
 {
@@ -50,9 +47,13 @@ public partial class GlobalInputSystem : MonoBehaviour
         var keyCode = e.Data.KeyCode;
 
         var inputStates = InputStates[DeviceType.Keyboard];
-        inputStates[(uint)keyCode] = InputState.Pressed;
+        if (
+            inputStates[(uint)keyCode] == InputState.Pressed
+            || inputStates[(uint)keyCode] == InputState.Hold
+        )
+            return;
 
-        Debug.Log($"{keyCode} Pressed");
+        inputStates[(uint)keyCode] = InputState.Pressed;
     }
     private void Hook_KeyboardReleased(object sender, KeyboardHookEventArgs e)
     {
