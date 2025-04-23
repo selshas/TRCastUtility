@@ -12,6 +12,8 @@ using KeyCode = SharpHook.Native.KeyCode;
 
 public partial class ScreenCanvas : UtilityAppBase
 {
+    public ScreenCanvasHelper Helper;
+
     public RawImage rawImg_screenCanvas = null;
     public Transform transform_screenCanvas;
 
@@ -192,7 +194,7 @@ public partial class ScreenCanvas : UtilityAppBase
         );
 
         AddInputCmd(
-            DeviceType.Keyboard, (uint)KeyCode.VcE,
+            DeviceType.Mouse, (uint)MouseButton.Button3,
             InputState.Pressed,
             (self) =>
             {
@@ -201,11 +203,11 @@ public partial class ScreenCanvas : UtilityAppBase
         );
 
         AddInputCmd(
-            DeviceType.Keyboard, (uint)KeyCode.VcF1,
+            DeviceType.Keyboard, (uint)KeyCode.VcF5,
             InputState.Pressed,
             (self) =>
             {
-                ToggleHelp();
+                ToggleHelper();
             }
         );
 
@@ -251,7 +253,8 @@ public partial class ScreenCanvas : UtilityAppBase
         );
     }
 
-    private void ToggleHelp()
-    { 
+    private void ToggleHelper()
+    {
+        Helper.gameObject.SetActive(!Helper.gameObject.activeSelf);
     }
 }
