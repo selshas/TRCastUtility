@@ -22,11 +22,11 @@ public abstract class UtilityAppBase : MonoBehaviour
         {
             inputs = new List<uint>();
             inputSys.RegisteredInput.Add(deviceType, inputs);
-            inputSys.InputStates.Add(deviceType, new Dictionary<uint, GlobalInputSystem.InputState>());
-            inputSys.InputStates_prev.Add(deviceType, new Dictionary<uint, GlobalInputSystem.InputState>());
+            inputSys.InputStates.Add(deviceType, new Dictionary<uint, InputState>());
+            inputSys.InputStates_prev.Add(deviceType, new Dictionary<uint, InputState>());
 
 #if UNITY_EDITOR
-            Debug.Log($"Device Added: {deviceType}");
+            //Debug.Log($"Device Added: {deviceType}");
 #endif
         }
 
@@ -34,12 +34,12 @@ public abstract class UtilityAppBase : MonoBehaviour
         {
             inputs.Add(inputCode);
 
-            inputSys.InputStates[deviceType].Add(inputCode, GlobalInputSystem.InputState.Idle);
-            inputSys.InputStates_prev[deviceType].Add(inputCode, GlobalInputSystem.InputState.Idle);
+            inputSys.InputStates[deviceType].Add(inputCode, InputState.Idle);
+            inputSys.InputStates_prev[deviceType].Add(inputCode, InputState.Idle);
         }
 
 #if UNITY_EDITOR
-        Debug.Log($"{this}.AddInputCmd: {deviceType} {inputCode} {stateCondition}");
+        //Debug.Log($"{this}.AddInputCmd: {deviceType} {inputCode} {stateCondition}");
 #endif
     }
 
