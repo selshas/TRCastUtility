@@ -55,9 +55,6 @@ public class ScreenVeil: UtilityAppBase
     {
         gameObject.SetActive(true);
 
-        if (coroutine_imageSwapFading != null) 
-            StopCoroutine(coroutine_imageSwapFading);
-
         Select(-1);
 
         Graphics.CopyTexture(renderTex, renderTex_prev);
@@ -67,14 +64,10 @@ public class ScreenVeil: UtilityAppBase
 
     public void ShowWhiteScreen()
     {
-        gameObject.SetActive(true);
-
         if (coroutine_imageSwapFading != null) 
             StopCoroutine(coroutine_imageSwapFading);
 
         Select(-2);
-
-        Graphics.CopyTexture(renderTex, renderTex_prev);
 
         coroutine_imageSwapFading = StartCoroutine(Coroutine_FadeIn());
     }
@@ -85,7 +78,15 @@ public class ScreenVeil: UtilityAppBase
 
     IEnumerator Coroutine_FadeIn()
     {
-        rawImage.gameObject.SetActive(true);
+        if (!rawImage.gameObject.activeSelf)
+        {
+            rawImage.gameObject.SetActive(true);
+            Graphics.CopyTexture(images[currentImageIndex], renderTex_prev);
+        }
+        else
+        {
+            Graphics.CopyTexture(renderTex, renderTex_prev);
+        }
 
         for (float alpha = 0; alpha <= 1.0f; alpha += Time.deltaTime)
         {
@@ -101,6 +102,7 @@ public class ScreenVeil: UtilityAppBase
 
         mat_multiplyOpacity.SetFloat("_Opacity", 1.0f);
         rawImage.color = new Color(1, 1, 1, 1);
+
         Graphics.Blit(images[currentImageIndex], renderTex, mat_multiplyOpacity);
 
         yield return null;
