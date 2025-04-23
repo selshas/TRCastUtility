@@ -1,7 +1,7 @@
-using SharpHook.Native;
 using System.Collections.Generic;
 using UnityEngine;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
+using static GlobalInputSystem;
+using DeviceType = GlobalInputSystem.DeviceType;
 
 public abstract class UtilityAppBase : MonoBehaviour
 {
@@ -12,7 +12,7 @@ public abstract class UtilityAppBase : MonoBehaviour
         InitializeInputs();
     }
 
-    public void AddInputCmd(GlobalInputSystem.DeviceType deviceType, uint inputCode, GlobalInputSystem.InputState stateCondition, GlobalInputSystem.InputCallback action)
+    public void AddInputCmd(DeviceType deviceType, uint inputCode, InputState stateCondition, InputCallback action)
     {
         InputCommand inputCmd = new InputCommand(deviceType, inputCode, stateCondition, action);
         inputCmds.Add(inputCmd);
