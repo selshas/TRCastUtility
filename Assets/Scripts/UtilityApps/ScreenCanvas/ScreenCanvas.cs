@@ -14,8 +14,8 @@ public partial class ScreenCanvas : UtilityAppBase
 {
     public ScreenCanvasHelper Helper;
 
-    public RawImage rawImg_screenCanvas = null;
-    public Transform transform_screenCanvas;
+    public RawImage RawImg_ScreenCanvas = null;
+    public Transform Transform_ScreenCanvas;
 
     private Vector2 cursorPos_curr;
     private Vector2 cursorPos_prev;
@@ -23,11 +23,11 @@ public partial class ScreenCanvas : UtilityAppBase
     private RectTransform rectTransform_targetCanvas;
 
     private Transform transform_emulatedCursor;
-    public RawImage rawImage_emulatedCursor;
+    public RawImage RawImage_EmulatedCursor;
 
     private RenderTexture renderTex_canvasTexture;
-    public Material mat_drawSpot;
-    public Material mat_eraseSpot;
+    public Material Mat_DrawSpot;
+    public Material Mat_EraseSpot;
 
     public Dictionary<string, Color> PenColors = new Dictionary<string, Color>()
     {
@@ -44,7 +44,7 @@ public partial class ScreenCanvas : UtilityAppBase
         set
         {
             currentPenColor = value;
-            rawImage_emulatedCursor.color = value;
+            RawImage_EmulatedCursor.color = value;
         }
     }
     private Color currentPenColor;
@@ -53,17 +53,17 @@ public partial class ScreenCanvas : UtilityAppBase
     {
         currentPenColor = PenColors["white"];
 
-        transform_emulatedCursor = GameObject.Find("EmulatedCursor").transform;
-        rawImage_emulatedCursor = transform_emulatedCursor.GetComponent<RawImage>();
+        transform_emulatedCursor = transform.Find("EmulatedCursor").transform;
+        RawImage_EmulatedCursor = transform_emulatedCursor.GetComponent<RawImage>();
          
-        transform_screenCanvas = transform;
-        rectTransform_targetCanvas = transform_screenCanvas.GetComponent<RectTransform>();
+        Transform_ScreenCanvas = transform;
+        rectTransform_targetCanvas = Transform_ScreenCanvas.GetComponent<RectTransform>();
 
         var renderTexture = new RenderTexture(Screen.width, Screen.height, 1, GraphicsFormat.R8G8B8A8_UNorm, 0);
         renderTex_canvasTexture = renderTexture;
 
-        rawImg_screenCanvas ??= transform.Find("DrawableArea").GetComponent<RawImage>();
-        rawImg_screenCanvas.texture = renderTex_canvasTexture;
+        RawImg_ScreenCanvas ??= transform.Find("DrawableArea").GetComponent<RawImage>();
+        RawImg_ScreenCanvas.texture = renderTex_canvasTexture;
     }
 
     private void OnEnable()
@@ -83,11 +83,11 @@ public partial class ScreenCanvas : UtilityAppBase
 
         Clear();
 
-        RenderTexture.active = (RenderTexture)rawImg_screenCanvas.texture;
+        RenderTexture.active = (RenderTexture)RawImg_ScreenCanvas.texture;
         GL.Clear(true, true, new Color(0, 0, 0, 0));
         RenderTexture.active = null;
 
-        mat_drawSpot.SetVector("_Color", CurrentPenColor);
+        Mat_DrawSpot.SetVector("_Color", CurrentPenColor);
     }
 
     private bool IsCursorInsideCanvas()
@@ -124,19 +124,19 @@ public partial class ScreenCanvas : UtilityAppBase
     {
         pos -= rectTransform_targetCanvas.anchoredPosition;
 
-        mat_drawSpot.SetVector("_CursorPos", pos);
-        mat_drawSpot.SetVector("_Color", CurrentPenColor);
+        Mat_DrawSpot.SetVector("_CursorPos", pos);
+        Mat_DrawSpot.SetVector("_Color", CurrentPenColor);
 
-        Graphics.Blit(null, renderTex_canvasTexture, mat_drawSpot);
+        Graphics.Blit(null, renderTex_canvasTexture, Mat_DrawSpot);
     }
 
     public void EraseSpot(Vector2 pos)
     {
         pos -= rectTransform_targetCanvas.anchoredPosition;
 
-        mat_eraseSpot.SetVector("_CursorPos", pos);
+        Mat_EraseSpot.SetVector("_CursorPos", pos);
 
-        Graphics.Blit(null, renderTex_canvasTexture, mat_eraseSpot);
+        Graphics.Blit(null, renderTex_canvasTexture, Mat_EraseSpot);
     }
 
     public override void InitializeInputs()
@@ -199,6 +199,16 @@ public partial class ScreenCanvas : UtilityAppBase
             (self) =>
             {
                 Clear();
+            }
+        );
+
+        AddInputCmd(
+            DeviceType.Keyboard, (uint)KeyCode.VcTab,
+            InputState.Pressed,
+            (self) =>
+            {
+                GlobalAppController.Instance.ToggleApp_ScreenCanvas();
+                GlobalAppController.Instance.ToggleApp_MinimapCanvas();
             }
         );
 
