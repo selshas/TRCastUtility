@@ -14,6 +14,7 @@ public class GlobalAppController : UtilityAppBase
     public MinimapCanvas App_MinimapCanvas;
     public PlayersNamePanel App_PlayersNamePanel;
     public ScreenVeil App_ScreenVeil;
+    public MinimapOverlay App_MinimapOverlay;
 
     public float timeToHoldToQuit = 2.0f; // Time to hold backspace to quit the app
     private float timer_quit = 0.0f;
@@ -54,6 +55,11 @@ public class GlobalAppController : UtilityAppBase
         App_ScreenVeil.gameObject.SetActive(!isActive);
     }
 
+    public void ToggleApp_MinimapOverlay()
+    {
+        var isActive = App_MinimapOverlay.gameObject.activeSelf;
+        App_MinimapOverlay.gameObject.SetActive(!isActive);
+    }
     protected void Awake()
     {
         Instance ??= this;
@@ -100,10 +106,18 @@ public class GlobalAppController : UtilityAppBase
                 ToggleApp_PlayersNamePanel();
             }
         );
+        AddInputCmd(
+            DeviceType.Keyboard, (uint)KeyCode.VcF5,
+            InputState.Pressed,
+            (self) =>
+            {
+                ToggleApp_MinimapOverlay();
+            }
+        );
         #endregion Toggle Apps
 
         AddInputCmd(
-            DeviceType.Keyboard, (uint)KeyCode.VcF6,
+            DeviceType.Keyboard, (uint)KeyCode.VcF8,
             InputState.Pressed,
             (self) =>
             {
