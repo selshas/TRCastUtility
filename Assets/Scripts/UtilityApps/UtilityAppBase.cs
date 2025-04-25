@@ -34,8 +34,11 @@ public abstract class UtilityAppBase : MonoBehaviour
         {
             inputs.Add(inputCode);
 
-            inputSys.InputStates[deviceType].Add(inputCode, InputState.Idle);
-            inputSys.InputStates_prev[deviceType].Add(inputCode, InputState.Idle);
+            if (!inputSys.InputStates[deviceType].ContainsKey(inputCode))
+                inputSys.InputStates[deviceType].Add(inputCode, InputState.Idle);
+
+            if (!inputSys.InputStates_prev[deviceType].ContainsKey(inputCode))
+                inputSys.InputStates_prev[deviceType].Add(inputCode, InputState.Idle);
         }
 
 #if UNITY_EDITOR
