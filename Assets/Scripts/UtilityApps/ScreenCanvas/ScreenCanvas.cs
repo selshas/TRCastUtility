@@ -95,8 +95,8 @@ public partial class ScreenCanvas : UtilityAppBase
         Vector2 cursorPos = cursorPos_curr;
 
         return (
-            rectTransform_targetCanvas.anchoredPosition.x < cursorPos.x && cursorPos.x < rectTransform_targetCanvas.anchoredPosition.x + rectTransform_targetCanvas.rect.width
-            && rectTransform_targetCanvas.anchoredPosition.y < cursorPos.y && cursorPos.y < rectTransform_targetCanvas.anchoredPosition.y + rectTransform_targetCanvas.rect.height
+            rectTransform_targetCanvas.anchoredPosition.x < cursorPos.x && cursorPos.x < rectTransform_targetCanvas.anchoredPosition.x + rectTransform_targetCanvas.rect.width * 0.5f
+            && rectTransform_targetCanvas.anchoredPosition.y < cursorPos.y && cursorPos.y < rectTransform_targetCanvas.anchoredPosition.y + rectTransform_targetCanvas.rect.height * 0.5f
         );
     }
 
@@ -108,9 +108,6 @@ public partial class ScreenCanvas : UtilityAppBase
         cursorPos_prev = cursorPos_curr;
         cursorPos_curr = Pointer.current.position.ReadValue();
         transform_emulatedCursor.position = cursorPos_curr;
-
-        // Hide software cursor when it is outside of the canvas.
-        transform_emulatedCursor.gameObject.SetActive(IsCursorInsideCanvas());
     }
 
     public void Clear()
@@ -156,14 +153,11 @@ public partial class ScreenCanvas : UtilityAppBase
             {
                 Vector2 cursorPos_delta = (cursorPos_curr - cursorPos_prev);
 
-                if (cursorPos_delta.magnitude > 2.0f)
-                {
-                    int steps = Mathf.RoundToInt(cursorPos_delta.magnitude / 4.0f);
-                    float dt = 1.0f / steps;
+                int steps = Mathf.RoundToInt(cursorPos_delta.magnitude / 4.0f);
+                float dt = 1.0f / steps;
 
-                    for (float t = 0; t <= 1.0f; t += dt)
-                        DrawSpot(cursorPos_delta * t + cursorPos_prev);
-                }
+                for (float t = 0; t <= 1.0f; t += dt)
+                    DrawSpot(cursorPos_delta * t + cursorPos_prev);
             }
         );
 
@@ -174,14 +168,11 @@ public partial class ScreenCanvas : UtilityAppBase
             {
                 Vector2 cursorPos_delta = (cursorPos_curr - cursorPos_prev);
 
-                if (cursorPos_delta.magnitude > 2.0f)
-                {
-                    int steps = Mathf.RoundToInt(cursorPos_delta.magnitude / 4.0f);
-                    float dt = 1.0f / steps;
+                int steps = Mathf.RoundToInt(cursorPos_delta.magnitude / 4.0f);
+                float dt = 1.0f / steps;
 
-                    for (float t = 0; t <= 1.0f; t += dt)
-                        EraseSpot(cursorPos_delta * t + cursorPos_prev);
-                }
+                for (float t = 0; t <= 1.0f; t += dt)
+                    EraseSpot(cursorPos_delta * t + cursorPos_prev);
             }
         );
         AddInputCmd(
@@ -213,7 +204,7 @@ public partial class ScreenCanvas : UtilityAppBase
         );
 
         AddInputCmd(
-            DeviceType.Keyboard, (uint)KeyCode.VcF5,
+            DeviceType.Keyboard, (uint)KeyCode.VcF7,
             InputState.Pressed,
             (self) =>
             {

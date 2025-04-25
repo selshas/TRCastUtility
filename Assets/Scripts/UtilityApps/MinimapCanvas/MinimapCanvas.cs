@@ -19,6 +19,8 @@ public class MinimapCanvas : UtilityAppBase
     public RawImage RawImg_MinimapCanvas;
     public Transform Transform_MinimapCanvas;
 
+    public Texture2D Tex_NotFound;
+
     private Vector2 cursorPos_curr;
     private Vector2 cursorPos_prev;
 
@@ -57,7 +59,8 @@ public class MinimapCanvas : UtilityAppBase
     public List<int> PlayerCounts = new List<int>()
     { 
         2,
-        4
+        4,
+        6,
     };
 
     public Dictionary<string, Texture2D> TexturesLookup = new Dictionary<string, Texture2D>();
@@ -109,7 +112,7 @@ public class MinimapCanvas : UtilityAppBase
         var renderTexture = new RenderTexture(Screen.width, Screen.height, 1, GraphicsFormat.R8G8B8A8_UNorm, 0);
         renderTex_canvasTexture = renderTexture;
 
-        RawImg_MinimapCanvas ??= transform.Find("DrawableArea").GetComponent<RawImage>();
+        RawImg_MinimapCanvas ??= transform.Find("Mask/DrawableArea").GetComponent<RawImage>();
         RawImg_MinimapCanvas.texture = renderTex_canvasTexture;
     }
 
@@ -146,8 +149,6 @@ public class MinimapCanvas : UtilityAppBase
         cursorPos_prev = cursorPos_curr;
         cursorPos_curr = Pointer.current.position.ReadValue();
         transform_emulatedCursor.position = cursorPos_curr;
-        // Hide software cursor when it is outside of the canvas.
-        transform_emulatedCursor.gameObject.SetActive(IsCursorInsideCanvas());
     }
 
     public void Clear()
@@ -193,14 +194,11 @@ public class MinimapCanvas : UtilityAppBase
             {
                 Vector2 cursorPos_delta = (cursorPos_curr - cursorPos_prev);
 
-                if (cursorPos_delta.magnitude > 2.0f)
-                {
-                    int steps = Mathf.RoundToInt(cursorPos_delta.magnitude / 4.0f);
-                    float dt = 1.0f / steps;
+                int steps = Mathf.RoundToInt(cursorPos_delta.magnitude / 4.0f);
+                float dt = 1.0f / steps;
 
-                    for (float t = 0; t <= 1.0f; t += dt)
-                        DrawSpot(cursorPos_delta * t + cursorPos_prev);
-                }
+                for (float t = 0; t <= 1.0f; t += dt)
+                    DrawSpot(cursorPos_delta * t + cursorPos_prev);
             }
         );
 
@@ -211,14 +209,11 @@ public class MinimapCanvas : UtilityAppBase
             {
                 Vector2 cursorPos_delta = (cursorPos_curr - cursorPos_prev);
 
-                if (cursorPos_delta.magnitude > 2.0f)
-                {
-                    int steps = Mathf.RoundToInt(cursorPos_delta.magnitude / 4.0f);
-                    float dt = 1.0f / steps;
+                int steps = Mathf.RoundToInt(cursorPos_delta.magnitude / 4.0f);
+                float dt = 1.0f / steps;
 
-                    for (float t = 0; t <= 1.0f; t += dt)
-                        EraseSpot(cursorPos_delta * t + cursorPos_prev);
-                }
+                for (float t = 0; t <= 1.0f; t += dt)
+                    EraseSpot(cursorPos_delta * t + cursorPos_prev);
             }
         );
         AddInputCmd(
@@ -250,7 +245,7 @@ public class MinimapCanvas : UtilityAppBase
         );
 
         AddInputCmd(
-            DeviceType.Keyboard, (uint)KeyCode.VcF5,
+            DeviceType.Keyboard, (uint)KeyCode.VcF7,
             InputState.Pressed,
             (self) =>
             {
@@ -315,21 +310,28 @@ public class MinimapCanvas : UtilityAppBase
         {
             dropdown.gameObject.SetActive(key == playerCount);
         }
+
+        ChangeMap(0);
     }
 
     public void ChangeMap(int i)
     {
+        Clear();
+
+        var texture_minimap = Tex_NotFound;
+
         var dropdown = dropdowns_maps[CurrentPlayerCount];
-        var mapName = dropdown.options[i].text;
+        if (dropdown.options.Count != 0 && dropdown.options[i].text != "")
+        {
+            var mapName = dropdown.options[i].text;
+
+            texture_minimap = TexturesLookup[mapName];
 
 #if UNITY_EDITOR
-        Debug.Log($"ChangeMap: {mapName}");
+            Debug.Log($"ChangeMap: {mapName}");
 #endif
-
-        var texture_minimap = TexturesLookup[mapName];
+        }
 
         RawImg_MinimapCanvas_Background.texture = texture_minimap;
-
-        Clear();
     }
 }
