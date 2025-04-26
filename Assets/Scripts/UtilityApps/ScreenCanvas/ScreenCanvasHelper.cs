@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ScreenCanvasHelper : MonoBehaviour
+public class ScreenCanvasHelper : Helper
 {
     public ScreenCanvas ScreenCanvas;
 

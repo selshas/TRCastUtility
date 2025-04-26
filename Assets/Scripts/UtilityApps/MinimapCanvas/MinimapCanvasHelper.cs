@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MinimapCanvasHelper : MonoBehaviour
+public class MinimapCanvasHelper : Helper
 {
     public MinimapCanvas MinimapCanvas;
 

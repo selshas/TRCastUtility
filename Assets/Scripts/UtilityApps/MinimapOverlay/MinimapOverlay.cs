@@ -18,12 +18,12 @@ public class MinimapOverlay : UtilityAppBase
     {
         base.Update();
 
-        if (MinimapCanvas.RawImg_MinimapCanvas == null)
+        if (MinimapCanvas.RawImg_TargetCanvas == null)
             return;
 
-        if (RawImg_MinimapOverlay.texture == MinimapCanvas.RawImg_MinimapCanvas.texture)
+        if (RawImg_MinimapOverlay.texture == MinimapCanvas.RawImg_TargetCanvas.texture)
             return;
 
-        RawImg_MinimapOverlay.texture = MinimapCanvas.RawImg_MinimapCanvas.texture;
+        RawImg_MinimapOverlay.texture = MinimapCanvas.RawImg_TargetCanvas.texture;
     }
 }
